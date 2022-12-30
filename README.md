@@ -6,5 +6,5 @@
 from《有趣的二进制：软件安全与逆向分析》[binarys for practice](https://github.com/shyujikou/binarybook)
 
 
-- 'binary_tools' 二进制分析工具
+- '/binary_tools' 二进制分析工具
  WinHex、Process Monitor、Wireshark

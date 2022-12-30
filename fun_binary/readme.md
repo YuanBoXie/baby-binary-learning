@@ -35,4 +35,31 @@
 
 Win11 启动文件夹位置：C:\Users\（用户名）\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
 ## wasample01a.exe
-待分析样本：ch1_wasample01a.exe
+待分析样本：ch1_wasample01a.exe 用 WinHex 打开可以看到一些字符串，用 IDA 打开在 Hex View 也类似，IDA 打开文件时选 PE 格式，shift+F4 打开 Names Window，双击 wWinMian 函数跳转到对应的 View-A 反汇编代码页面的对应函数汇编代码位置。
+分别执行：
+```bash
+./ch1_wasample01a.exe
+./ch1_wasample01a.exe 2012
+```
+发现窗口中文案有变化，阅读汇编代码可以看到程序执行了lstrcmpW()函数，并根据结果分别进入了两个分支。以下是该程序的源码：
+```cpp
+#include <Windows.h>
+#include <tchar.h>
+
+int APIENTRY _tWinMain(
+	HINSTANCE hInstance, 
+	HINSTANCE hPrevInstance, 
+	LPTSTR    lpCmdLine, 
+	int       nCmdShow)
+{
+	if(lstrcmp(lpCmdLine, _T("2012")) == 0){
+		MessageBox(GetActiveWindow(), 
+			_T("Hello! 2012"), _T("MESSAGE"), MB_OK);
+	}else{
+		MessageBox(GetActiveWindow(), 
+			_T("Hello! Windows"), _T("MESSAGE"), MB_OK);
+	}	
+	return 0;
+}
+```
+在IDA Pro View-A 按 F5 可以查看C语言伪码（这里需要用32bit的IDA），可以看到伪码跟上述源码差不多。
