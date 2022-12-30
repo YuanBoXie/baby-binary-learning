@@ -5,7 +5,7 @@
 - 动态分析：在运行目标程序的情况下进行分析
 
 # Ch1 hello,world
-## sample_mal.exe
+## sample_mal.exe - hello,world
 待分析样本：ch1_sample_mal.exe (运行前请 copy 备份一份,即 ch1_sample_mal.exe.backup，该程序会自我删除，无恶意行为)
 
 程序行为：
@@ -34,7 +34,7 @@
 实验流程：1. 双击运行该文件，然后关闭窗口（触发相关行为）；2. 观察相关位置是否被修改（分别从文件系统、注册表和Process Monitor观察）；3. 还原：删除对应位置的文件和注册表即可。
 
 Win11 启动文件夹位置：C:\Users\（用户名）\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
-## wasample01a.exe
+## wasample01a.exe - 静态分析 hello,world
 待分析样本：ch1_wasample01a.exe 用 WinHex 打开可以看到一些字符串，用 IDA 打开在 Hex View 也类似，IDA 打开文件时选 PE 格式，shift+F4 打开 Names Window，双击 wWinMian 函数跳转到对应的 View-A 反汇编代码页面的对应函数汇编代码位置。
 分别执行：
 ```bash
@@ -63,3 +63,6 @@ int APIENTRY _tWinMain(
 }
 ```
 在IDA Pro View-A 按 F5 可以查看C语言伪码（这里需要用32bit的IDA），可以看到伪码跟上述源码差不多。
+## wasample01b.exe - 动态分析 hello,world
+待分析样本：ch1_wsample01b.exe 用 Process Monitor 监控，设置过滤规则只看该程序的文件操作，可以看到与 sample_mal.exe 有同样的行为：在启动文件夹释放了程序副本。要进一步跟踪程序逻辑，需要用到调试器。调试器具有断点；单步跳入、跳出；查看寄存器和内存数据等功能。此处使用 OllyDbg 进行动态调试。
+
