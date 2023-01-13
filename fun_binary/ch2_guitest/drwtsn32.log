@@ -1,0 +1,181 @@
+
+Microsoft (R) DrWtsn32
+Copyright (C) 1985-2001 Microsoft Corp. All rights reserved.
+
+
+
+发生应用程序意外错误:
+        应用程序: C:\Temp\guitest.exe (pid=2804)
+        时间:  2013/07/21 @ 12:08:02.478
+        意外情况编号: c0000005 (访问侵犯)
+
+*----> 系统信息 <----*
+        计算机名: VIRTUALXP-10791
+        用户名: XPMUser
+        终端会话 Id: 0
+        处理器数量: 1
+        处理器类型: x86 Family 6 Model 37 Stepping 2
+        Windows 版本: 5.1
+        当前内部版本号: 2600
+        Service Pack: 3
+        当前类型: Uniprocessor Free
+        注册的单位: 
+        注册的所有者: Windows XP Mode
+
+*----> 任务列表 <----*
+   0 System Process
+   4 System
+ 420 smss.exe
+ 480 csrss.exe
+ 504 winlogon.exe
+ 548 services.exe
+ 560 lsass.exe
+ 716 svchost.exe
+ 772 svchost.exe
+ 840 svchost.exe
+ 892 svchost.exe
+ 936 svchost.exe
+1124 spoolsv.exe
+1212 svchost.exe
+1244 vmsrvc.exe
+1364 inetinfo.exe
+1380 jqs.exe
+1844 unsecapp.exe
+1872 wmiprvse.exe
+ 264 alg.exe
+ 748 csrss.exe
+ 828 winlogon.exe
+1180 rdpclip.exe
+1404 wscntfy.exe
+2156 Explorer.EXE
+2532 vmusrvc.exe
+2572 jusched.exe
+2600 AdobeARM.exe
+2640 EMET_agent.exe
+2668 ctfmon.exe
+2704 msmsgs.exe
+3548 cmd.exe
+3564 conime.exe
+3924 jucheck.exe
+3336 HIDEMARU.EXE
+4040 wuauclt.exe
+2804 guitest.exe
+2296 drwtsn32.exe
+
+*----> 模块清单 <----*
+(0000000000400000 - 0000000000412000: C:\Temp\guitest.exe
+(000000003b100000 - 000000003b11b000: C:\WINDOWS\IME\IMJP8_1\Dicts\IMJPCD.DIC
+(000000004edc0000 - 000000004ee16000: C:\WINDOWS\system32\imjp81.ime
+(0000000058730000 - 0000000058768000: C:\WINDOWS\system32\uxtheme.dll
+(000000005ab60000 - 000000005abfa000: C:\WINDOWS\system32\COMCTL32.dll
+(0000000060740000 - 0000000060749000: C:\WINDOWS\system32\LPK.DLL
+(00000000648f0000 - 00000000649c0000: C:\WINDOWS\system32\imjp81k.dll
+(0000000073620000 - 000000007364e000: C:\WINDOWS\system32\msctfime.ime
+(0000000073f80000 - 0000000073feb000: C:\WINDOWS\system32\USP10.dll
+(0000000074660000 - 00000000746ac000: C:\WINDOWS\system32\MSCTF.dll
+(00000000762e0000 - 00000000762fd000: C:\WINDOWS\system32\IMM32.DLL
+(0000000076970000 - 0000000076aae000: C:\WINDOWS\system32\ole32.dll
+(0000000076d90000 - 0000000076db2000: C:\WINDOWS\system32\Apphelp.dll
+(00000000770d0000 - 000000007715b000: C:\WINDOWS\system32\oleaut32.dll
+(0000000077160000 - 0000000077263000: C:\WINDOWS\WinSxS\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.2600.6028_x-ww_61e65202\comctl32.dll
+(0000000077bb0000 - 0000000077bb8000: C:\WINDOWS\system32\VERSION.dll
+(0000000077bc0000 - 0000000077c18000: C:\WINDOWS\system32\msvcrt.dll
+(0000000077cf0000 - 0000000077d80000: C:\WINDOWS\system32\USER32.dll
+(0000000077d80000 - 0000000077e29000: C:\WINDOWS\system32\ADVAPI32.dll
+(0000000077e30000 - 0000000077ec3000: C:\WINDOWS\system32\RPCRT4.dll
+(0000000077ed0000 - 0000000077f19000: C:\WINDOWS\system32\GDI32.dll
+(0000000077f20000 - 0000000077f96000: C:\WINDOWS\system32\SHLWAPI.dll
+(0000000077fa0000 - 0000000077fb1000: C:\WINDOWS\system32\Secur32.dll
+(0000000078aa0000 - 0000000078b5e000: C:\WINDOWS\system32\MSVCR100.dll
+(000000007c800000 - 000000007c933000: C:\WINDOWS\system32\kernel32.dll
+(000000007c940000 - 000000007c9df000: C:\WINDOWS\system32\ntdll.dll
+(000000007d5b0000 - 000000007ddb0000: C:\WINDOWS\system32\SHELL32.dll
+
+*----> 线程 Id 0x4d8 的状态转储  <----*
+
+eax=00000001 ebx=00000000 ecx=00000000 edx=00000041 esi=00401290 edi=0012f958
+eip=004012bf esp=0012f8f0 ebp=0012f8f0 iopl=0         nv up ei pl zr na po nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246
+
+*** ERROR: Module load completed but symbols could not be loaded for C:\Temp\guitest.exe
+函数: guitest
+        004012a4 106683           adc     [esi-0x7d],ah
+        004012a7 f8               clc
+        004012a8 01740c66         add     [esp+ecx+0x66],esi
+        004012ac 83f802           cmp     eax,0x2
+        004012af 7406             jz      guitest+0x12b7 (004012b7)
+        004012b1 33c0             xor     eax,eax
+        004012b3 5d               pop     ebp
+        004012b4 c21000           ret     0x10
+        004012b7 0fb7c0           movzx   eax,ax
+        004012ba ba41000000       mov     edx,0x41
+错误 ->004012bf 668911           mov     [ecx],dx              ds:0023:00000000=????
+        004012c2 8b4d08           mov     ecx,[ebp+0x8]
+        004012c5 50               push    eax
+        004012c6 51               push    ecx
+        004012c7 ff15a8204000     call    dword ptr [guitest+0x20a8 (004020a8)]
+        004012cd b801000000       mov     eax,0x1
+        004012d2 5d               pop     ebp
+        004012d3 c21000           ret     0x10
+        004012d6 3b0d00304000     cmp     ecx,[guitest+0x3000 (00403000)]
+        004012dc 7502             jnz     guitest+0x12e0 (004012e0)
+        004012de f3c3             rep     ret
+
+*----> 堆栈反向跟踪 <----*
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for C:\WINDOWS\system32\USER32.dll - 
+WARNING: Stack unwind information not available. Following frames may be wrong.
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for C:\WINDOWS\system32\kernel32.dll - 
+ChildEBP RetAddr  Args to Child              
+0012f8f0 77cf8734 000a0678 00000111 00000001 guitest+0x12bf
+0012f91c 77d03ce4 00401290 000a0678 00000111 USER32!GetDC+0x6d
+0012f988 77d03b30 00000000 00401290 000a0678 USER32!EnumDisplaySettingsA+0x27d
+0012f9d0 77d03d5c 00000000 00000111 00000001 USER32!EnumDisplaySettingsA+0xc9
+0012f9ec 77cf8734 000a0678 00000111 00000001 USER32!DefDlgProcW+0x22
+0012fa18 77cf8816 77d03d3a 000a0678 00000111 USER32!GetDC+0x6d
+0012fa80 77d0927b 00000000 77d03d3a 000a0678 USER32!GetDC+0x14f
+0012fabc 77d092e3 006a8bb0 006a6be8 00000001 USER32!GetParent+0x16c
+0012fadc 77d2ff7d 000a0678 00000111 00000001 USER32!SendMessageW+0x49
+0012faf4 77d265d2 006a8f80 00000000 006a8f80 USER32!CreateMDIWindowA+0x1bd
+0012fb10 77d05e94 00165e7c 00000001 00000000 USER32!DeregisterShellHookWindow+0x6312
+0012fb94 77d05231 006a8f80 00000202 00000000 USER32!IsDlgButtonChecked+0x109a
+0012fbb4 77cf8734 001f0660 00000202 00000000 USER32!IsDlgButtonChecked+0x437
+0012fbe0 77cf8816 77d051d1 001f0660 00000202 USER32!GetDC+0x6d
+0012fc48 77cf89cd 00000000 77d051d1 001f0660 USER32!GetDC+0x14f
+0012fca8 77cf8a10 0012fcf8 00000000 0012fcdc USER32!GetWindowLongW+0x127
+0012fcb8 77d074ff 0012fcf8 00000000 006a8bb0 USER32!DispatchMessageW+0xf
+0012fcdc 77d0763c 000a0678 006a8f80 000c069c USER32!IsDialogMessageW+0xdb
+0012fd18 77d049c4 000a0678 000c069c 00000001 USER32!CallMsgFilterW+0x12e
+0012fd40 77d04a06 00400000 0040fc78 000c069c USER32!GetCursorFrameInfo+0x1cc
+0012fd60 77d047ea 00400000 0040fc78 000c069c USER32!DialogBoxIndirectParamAorW+0x36
+0012fd84 0040122b 00400000 00000067 000c069c USER32!DialogBoxParamW+0x3f
+0012fdf4 77cf8734 000c069c 00000111 00000068 guitest+0x122b
+0012fe20 77cf8816 00401170 000c069c 00000111 USER32!GetDC+0x6d
+0012fe88 77cf89cd 00000000 00401170 000c069c USER32!GetDC+0x14f
+0012fee8 77cf8a10 0012ff10 00000000 0012ff2c USER32!GetWindowLongW+0x127
+0012fef8 004010c5 0012ff10 00000000 0040350c USER32!DispatchMessageW+0xf
+0012ff2c 00401488 00400000 00000000 0002067c guitest+0x10c5
+0012ffc0 7c817077 00310039 00320037 7ffdf000 guitest+0x1488
+0012fff0 00000000 004015bb 00000000 78746341 kernel32!RegisterWaitForInputIdle+0x49
+
+*----> 原始堆栈转储 <----*
+000000000012f8f0  1c f9 12 00 34 87 cf 77 - 78 06 0a 00 11 01 00 00  ....4..wx.......
+000000000012f900  01 00 00 00 60 06 1f 00 - 90 12 40 00 cd ab ba dc  ....`.....@.....
+000000000012f910  00 00 00 00 58 f9 12 00 - 90 12 40 00 88 f9 12 00  ....X.....@.....
+000000000012f920  e4 3c d0 77 90 12 40 00 - 78 06 0a 00 11 01 00 00  .<.w..@.x.......
+000000000012f930  01 00 00 00 60 06 1f 00 - 11 01 00 00 78 06 0a 00  ....`.......x...
+000000000012f940  b0 8b 6a 00 14 00 00 00 - 01 00 00 00 00 00 00 00  ..j.............
+000000000012f950  00 00 00 00 10 00 00 00 - 00 00 00 00 20 00 00 00  ............ ...
+000000000012f960  00 00 00 00 01 00 00 00 - 00 00 00 00 00 00 00 00  ................
+000000000012f970  38 f9 12 00 14 f5 12 00 - 70 fa 12 00 8f 04 d2 77  8.......p......w
+000000000012f980  08 3d d0 77 00 00 00 00 - d0 f9 12 00 30 3b d0 77  .=.w........0;.w
+000000000012f990  00 00 00 00 90 12 40 00 - 78 06 0a 00 11 01 00 00  ......@.x.......
+000000000012f9a0  01 00 00 00 60 06 1f 00 - c4 8b 6a 00 d8 f9 12 00  ....`.....j.....
+000000000012f9b0  54 fa 12 00 3a 3d d0 77 - 00 00 00 00 d1 51 d0 77  T...:=.w.....Q.w
+000000000012f9c0  ec f9 12 00 34 87 cf 77 - 60 06 1f 00 78 06 0a 00  ....4..w`...x...
+000000000012f9d0  ec f9 12 00 5c 3d d0 77 - 00 00 00 00 11 01 00 00  ....\=.w........
+000000000012f9e0  01 00 00 00 60 06 1f 00 - 00 00 00 00 18 fa 12 00  ....`...........
+000000000012f9f0  34 87 cf 77 78 06 0a 00 - 11 01 00 00 01 00 00 00  4..wx...........
+000000000012fa00  60 06 1f 00 3a 3d d0 77 - cd ab ba dc 00 00 00 00  `...:=.w........
+000000000012fa10  54 fa 12 00 3a 3d d0 77 - 80 fa 12 00 16 88 cf 77  T...:=.w.......w
+000000000012fa20  3a 3d d0 77 78 06 0a 00 - 11 01 00 00 01 00 00 00  :=.wx...........
+

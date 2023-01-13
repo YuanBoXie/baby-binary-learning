@@ -85,3 +85,40 @@ Windows 汇编器：[nasm](nasm.us) 连接器: ALINK 汇编程序样本：ch1_he
 ## ch2_shooting
 ![](2023-01-13-12-52-42.png)
 打开 shooting.exe 先玩一下，然后通过 CheatEngine 搜索 Score。这个时候可能有多个返回结果，我们继续玩游戏，CE里修改数值，再 NextScan 一次。如果还是定位到该变量，尝试修改数值，观察游戏中的数值是否发生改变。注意：Memory Scan Options 里别选 shooting.exe。
+
+## ch2_guitest
+内存转储(memory dump)：把内存数据转储成文件；
+随着程序的运行，内存中的数据会随着时间不断变化，如果想要保存某个时间点的快照，就用内存转储。
+
+Windows任务管理器->选中进程右键->创建转储文件
+由于目前的Windows已经默认不带有 Dr.Watson 内存转储工具（win xp以后的高版本windows可以手动设置实时调试器，如 OllyDbg），此处已经给出了分析结果。
+```
+*----> 线程 Id 0x4d8 的状态转储  <----*
+
+eax=00000001 ebx=00000000 ecx=00000000 edx=00000041 esi=00401290 edi=0012f958
+eip=004012bf esp=0012f8f0 ebp=0012f8f0 iopl=0         nv up ei pl zr na po nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246
+
+*** ERROR: Module load completed but symbols could not be loaded for C:\Temp\guitest.exe
+函数: guitest
+        004012a4 106683           adc     [esi-0x7d],ah
+        004012a7 f8               clc
+        004012a8 01740c66         add     [esp+ecx+0x66],esi
+        004012ac 83f802           cmp     eax,0x2
+        004012af 7406             jz      guitest+0x12b7 (004012b7)
+        004012b1 33c0             xor     eax,eax
+        004012b3 5d               pop     ebp
+        004012b4 c21000           ret     0x10
+        004012b7 0fb7c0           movzx   eax,ax
+        004012ba ba41000000       mov     edx,0x41
+错误 ->004012bf 668911           mov     [ecx],dx              ds:0023:00000000=????
+        004012c2 8b4d08           mov     ecx,[ebp+0x8]
+        004012c5 50               push    eax
+```
+可以看到此时 ecx 的地址是 0，NULL ptr 导致程序崩溃。
+
+对于转储的 .dmp 文件，可以用 WinDbg 分析：File -> Open Crash Dumps，这里分析方式参考书（因为我的实验环境装不上WinDbg..)
+
+游戏机的调试分析网站：devkitPro
+
+## 反调试
