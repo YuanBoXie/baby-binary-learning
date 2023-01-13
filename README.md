@@ -11,3 +11,4 @@ from《有趣的二进制：软件安全与逆向分析》[binarys for practice]
     - 网络监控：Wireshark
     - 二进制编辑器：WinHex
     - 调试器：OllyDbg、x64dbg\x32dbg
+    - 进程内存编辑器：Process Hacker、CheatEngine
