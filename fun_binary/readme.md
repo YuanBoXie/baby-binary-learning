@@ -268,3 +268,56 @@ exit
 
 上述的案例仅供参考，现代操作系统很多都默认启用了一些安全机制，上述方案已经失效了。
 
+## 防御攻击的技术
+
+- 地址随机化 ASLR
+
+	在 Ubuntu 12.02 /proc/sys/kernel/randomize_va_space 查看和修改 ASLR 设置，0：禁用、1：除堆以外随机化、2：全部随机化（默认）。通过以下代码测试 ASLR 机制：多次运行可以发现堆栈地址均不同。如果地址空间布局无法推测，则无法知道我们的shellcode地址。
+	```c
+	// $ gcc test00.c -o test00
+	#include <stdio.h>
+	#include <stdlib.h>
+	unsigned long get_sp(void)
+	{
+	__asm__("movl %esp, %eax");
+	}
+	int main(void)
+	{
+	printf("malloc: %p\n", malloc(16));
+	printf(" stack: 0x%lx\n", get_sp());
+	return 0;
+	}
+	```
+
+- Exec-Shield：除存放可执行代码的内存空间外，对其余内存空间尽量禁用执行权限。
+
+	即，通过限制内存空间读写来防御攻击。
+	比如：通常不会在栈空间存放可执行机器语言代码，因此可以把栈空间设置为可读写但不可执行。在代码空间中存放的机器语言代码，通常也不需要在代码运行时进行改写。因此可以把该部分空间设置为不可写。这样即使把shellcode复制到栈，也不会执行，会产生segmentation fault。
+
+	查看进程内存空间读写权限和执行权限：
+	```bash
+	ps -aef | grep test02
+	cat /proc/<pid>/maps | grep stack
+	```
+
+- StackGuard
+
+	StackGuard: 在编译时各个函数入口和出口插入检测栈数据完整性的代码，属于编译器的安全性机制。
+	原理：在栈末尾插入一个随机数，在函数出口检查该随机数是否被覆盖。该随机数后是 ebp 和 ret_addr 因此可以保护关键地址数据不被篡改。
+
+	在 Ubuntu 12.02 gcc 编译默认会加上 StackGuard 机制，如不需要该机制，需要指定：`-fno-stack-protector`
+
+## 绕开安全机制的技术
+- 利用 libc 函数进行攻击：Return-into-libc 是一种破解 Exec-Shield 的技术，思路是即使无法执行任意代码(shellcode)但只要最终能执行任意程序也算夺取权限。基本原理是通过调整参数和栈的配置，使得程序能够跳转到libc.so中的 system 函数以及 exec 函数。借此运行/bin/sh等程序。
+
+	通过 ldd 命令可以查看程序在运行时加载的动态链接库。几乎所有程序都会加载 libc.so 或者是在编译时静态链接。因此只要能调用 libc 中的 system 或者 exec 也可以夺取系统权限。在关闭 ASLR 的情况下通过 gdb 调试目标程序：
+	```bash
+	gdb>b main
+	gdb>r
+	gdb>p system
+	gdb>P exit
+	```
+	这样获得了system和exit的地址，因此在栈溢出时，不需要让返回地址改为栈中的shellcode地址，而是改为system函数的入口地址。将/bin/sh作为其函数参数，将exit作为其返回目标。利用代码参考ch3_exploit3.py，但如果开启了ASLR或StackGuard该方式依旧不会成功。
+
+- 利用未随机化的模块内部汇编代码进行攻击 ROP：上述方法如果启用了 ASLR 会失败。因为此时无法得知模块的准确地址，因此也无法跳转到其内部函数。利用未随机化模块内部的汇编代码拼接出所需要的逻辑：Return-Oriented-Programming
+
