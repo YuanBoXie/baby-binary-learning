@@ -9,7 +9,7 @@
 #pragma comment(lib, "libudis86.lib")
 
 
-int disas(unsigned char *buff, char *out, int size)
+int disas(unsigned char *buff, char *out, int size) // 负责对机器语言反汇编，使用了 udis86
 {
 	ud_t ud_obj;
 	ud_init(&ud_obj);
@@ -30,16 +30,16 @@ int disas(unsigned char *buff, char *out, int size)
 }
 
 
-int exception_debug_event(DEBUG_EVENT *pde)
+int exception_debug_event(DEBUG_EVENT *pde) // 在发生异常时执行
 {
-	DWORD dwReadBytes;
-
+	DWORD dwReadBytes;	// 实际读取的字节数
+	// 获得目标调试进程的句柄
 	HANDLE ph = OpenProcess(
 		PROCESS_VM_WRITE | PROCESS_VM_READ | PROCESS_VM_OPERATION, 
 		FALSE, pde->dwProcessId);
 	if(!ph)
 		return -1;
-
+	// 获得目标调试进程的异常线程句柄
 	HANDLE th = OpenThread(THREAD_GET_CONTEXT | THREAD_SET_CONTEXT, 
 		FALSE, pde->dwThreadId);
 	if(!th)
@@ -47,12 +47,12 @@ int exception_debug_event(DEBUG_EVENT *pde)
 
 	CONTEXT ctx;
 	ctx.ContextFlags = CONTEXT_ALL;
-	GetThreadContext(th, &ctx);
+	GetThreadContext(th, &ctx);				// 获得当前线程上下文
 	
 	char asm_string[256];
 	unsigned char asm_code[32];
-
-	ReadProcessMemory(ph, (VOID *)ctx.Eip, asm_code, 32, &dwReadBytes);
+	// ctx.Eip 当前线程指令执行地址
+	ReadProcessMemory(ph, (VOID *)ctx.Eip, asm_code, 32, &dwReadBytes);	
 	if(disas(asm_code, asm_string, sizeof(asm_string)) == -1)
 		asm_string[0] = '\0';
 
@@ -65,7 +65,7 @@ int exception_debug_event(DEBUG_EVENT *pde)
 	printf("         ESI=%08x EDI=%08x ESP=%08x EBP=%08x\n", 
 		ctx.Esi, ctx.Edi, ctx.Esp, ctx.Ebp);
 
-	SetThreadContext(th, &ctx);
+	SetThreadContext(th, &ctx);	// 实际上这里没有修改，因为此处函数是为了查看
 	CloseHandle(th);
 	CloseHandle(ph);
 	return 0;
@@ -82,11 +82,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		return 1;
 	}
 
-	memset(&pi, 0, sizeof(pi));
-	memset(&si, 0, sizeof(si));
+	memset(&pi, 0, sizeof(pi));								// 进程信息
+	memset(&si, 0, sizeof(si));								// 启动信息
 	si.cb = sizeof(STARTUPINFO);
 
-	BOOL r = CreateProcess(
+	BOOL r = CreateProcess(									// 创建进程
 		NULL, argv[1], NULL, NULL, FALSE, 
 		NORMAL_PRIORITY_CLASS | CREATE_SUSPENDED | DEBUG_PROCESS,
 		NULL, NULL, &si, &pi);
