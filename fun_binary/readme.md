@@ -333,4 +333,44 @@ exit
 	```cmd
 	wdbg02a.exe test.exe
 	```
-## 
+## 在其他进程中运行任意代码：代码注入
+- 著名文章：Three Ways to inject your code into another process
+
+- 方式一：通过 Windows API 劫持系统消息 SetWindowsHookEx、CallNextHookEx、UnhookWindowsHookEx
+
+	SetWindowsHookEx 将传递给窗口过程函数的消息劫持下来传递给第二参数指定的函数。这些API是用来劫持消息的，如果要劫持其他进程的窗口过程消息，就需要“在其他进程中”加载我们的DLL。
+
+	代码：
+	- \ch4_writeappinit\loging\ 实现日志功能，记录劫持的消息
+	- \ch4_writeappinit\setwindowshook\ 加载 loging 编译出的 dll
+
+		```cmd
+		setwindowshook.exe loging.dll
+		```
+	
+	上述 setwindowshook.exe 程序可以在调用时将 loging DLL 映射到其他进程中。但如果将 dll 写入 AppInit_DLLs 项中时，则可以在系统启动时将任意 DLL 加载到其他进程中。运行 regedit，在 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows 位置下的 AppInit_DLLs 数据项写入 DLL 路径（逗号分隔）。LoadAppInit_DLLs 数据项代表是否启动 AppInit_DLLs。
+	而在 64 位系统下的 32 位程序的相关设定被重定向到 HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows NT\CurrentVersion\Windows 路径。 此时，AppInit_DLLs 通过 user32.dll 加载，对于不依赖 user32.dll 的进程这一配置是无效的。
+
+	写入注册表程序示例 \ch4_writeappinit\writeappinit\，执行后，用调试器加载任意程序，在模块列表都会看到我们自定义的 dll。
+	```cmd
+	writeappinit.exe "C:\\loging.dll"
+	```
+
+- 方式二：通过 CreateRemoteThread 在其他进程中创建线程，然后在新线程中 LoadLibrary 从而注入 DLL。 注意事项： LoadLibrary 的参数需要位于目标进程内部，因此注入的 DLL 路径需要事先写入目标进程的内存空间。(code: /ch4_dllinjection)
+
+	```bash
+	dllinjection.exe Name iexplorer.exe "c:\\sampledll.dll"
+	dllinjection.exe PID 3212 "c:\\sampledll.dll"
+	dllinjection.exe New testproc "c:\\sampledll.dll"
+	```
+
+	上面是注入 dll 的案例，同理，可以通过把函数事先写入目标进程内存空间实现代码注入（code:/ch4_codeinjection)。
+
+- 方式三：任意替换程序逻辑  API钩子
+
+	API 钩子：对 API 插入额外逻辑。分为两类：1）改写目标函数开头几个字节。2）改写IAT(Import Address Table,IAT 导入地址表),IAT 钩子扩展阅读可参考《Advanced Windows》。从0实现API钩子需要大量代码，因此这里使用微软提供的 Detours API HOOK 库。只要知道 DLL export 的函数，就可以在运行时对该函数的调用进行劫持。(code: /ch4_detourshook)
+
+	示例代码中的 dllmain 劫持了 user32.dll 导出的 MessageBoxA API，替换为 HookedMessageBoxA。当 DLL 注入该进程时，API 将会被劫持。原理：把函数开头的几个字节修改为jmp强制跳转。这里提到的API Hook只适用于用户领域下的dll导出的函数，但可以通过劫持非公开API的方式对运行在内核（Ring0）领域的驱动程序进行API Hook。
+
+	- 参考文献：《Detours: Binary Interception of Win32 Functions》
+
