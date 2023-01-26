@@ -388,6 +388,8 @@ exit
 	
 	构造恶意pdf [SUSE Linux Security Vulnerability: CVE-2009-0927](https://www.rapid7.com/db/vulnerabilities/suse-cve-2009-0927/)
 	详情参考 [CVE-2009-0927-Adobe Reader缓冲区溢出漏洞分析](https://www.cnblogs.com/Taolaw/p/13775921.html)
+	视频 [Introducing of Security Camp 2013 "Software security class"](http://www.youtube.com/watch?v=eUslcqff6_k)
+
 - 实验：CVE-2011-2462 ROP 与 Anti-ROP
 	ROPGuard 方案简化版程序(code: ch5_ropguard_cheap) 通过 DLL 注入保护目标进程。在 release 下的 load_rg.exe 是一个加载器，核心功能在 ropguard.dll 中。基本原理是检查 RET 后的位置是否有 CALL 指令与之对应。注意，该代码主要面向32位程序。
 - REMnux 实验：
