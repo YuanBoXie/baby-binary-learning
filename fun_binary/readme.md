@@ -289,7 +289,7 @@ exit
 	}
 	```
 
-- Exec-Shield：除存放可执行代码的内存空间外，对其余内存空间尽量禁用执行权限。
+- DEP(Data Execution Protection) Exec-Shield：除存放可执行代码的内存空间外，对其余内存空间尽量禁用执行权限。
 
 	即，通过限制内存空间读写来防御攻击。
 	比如：通常不会在栈空间存放可执行机器语言代码，因此可以把栈空间设置为可读写但不可执行。在代码空间中存放的机器语言代码，通常也不需要在代码运行时进行改写。因此可以把该部分空间设置为不可写。这样即使把shellcode复制到栈，也不会执行，会产生segmentation fault。
@@ -374,3 +374,32 @@ exit
 
 	- 参考文献：《Detours: Binary Interception of Win32 Functions》
 
+# Ch5 使用工具探索更广阔的世界
+- Common Vulnerabilities and Exposures, CVE
+	- 漏洞编号：CVE-XXXX(年份)-XXXX(序号) 
+- 本章使用工具
+	- Metasploit：msf 的 msfpayload 可以根据环境和目标自动生成 shellcode
+	- EMET: Enhanced Mitigation Experience Toolkit 增强减灾体验工具是微软发布的免费的漏洞缓解工具。具有 Anti-ROP 机制。
+	- REMnux: 分析恶意软件的操作系统
+	- ClamAV: GPL协议的反病毒软件ClamAV，其特征文件名为.cvd。
+	- Zero Wine Tryouts：开源的自动分析工具，主要通过动态分析得出结果。运行在开源的虚拟机 QEMU 上。上传文件后在其沙箱运行并给出日志。
+
+- 实验：CVE-2009-0927 Adobe Reader 缓冲区溢出漏洞
+	
+	构造恶意pdf [SUSE Linux Security Vulnerability: CVE-2009-0927](https://www.rapid7.com/db/vulnerabilities/suse-cve-2009-0927/)
+	详情参考 [CVE-2009-0927-Adobe Reader缓冲区溢出漏洞分析](https://www.cnblogs.com/Taolaw/p/13775921.html)
+- 实验：CVE-2011-2462 ROP 与 Anti-ROP
+	ROPGuard 方案简化版程序(code: ch5_ropguard_cheap) 通过 DLL 注入保护目标进程。在 release 下的 load_rg.exe 是一个加载器，核心功能在 ropguard.dll 中。基本原理是检查 RET 后的位置是否有 CALL 指令与之对应。注意，该代码主要面向32位程序。
+- REMnux 实验：
+
+	```bash
+	sudo freshclam		# 更新恶意软件特征数据库
+	clamscan testfolder/ # 扫描恶意软件
+	trid mal.exe		# 查看目标程序的详细信息
+	pescanner mal.exe  # 检测PE文件元数据以及打包器
+	```
+## 启发式技术
+- 传统的基于黑名单的方式检测恶意软件已经无法满足日益增长的恶意软件规模的需要，特征库已经过于庞大。目前基于启发式技术的检测方案开始兴起。
+- 原理：对软件的行为（如频繁访问注册表、频繁收发小的数据包等）行为特征进行归类，将符合这些行为特征的软件归类为恶意软件。但目前的启发式检测引擎误报率较高。
+	- 开源的恶意软件检测引擎
+		- Adobe Malware Classifier：可对 Windows PE 文件进行恶意软件检测，基于 Python 编写。包含 4 个独立的检测算法分别对目标程序进行评分。如果所有的检测算法判断其为恶意软件，则最终结果为1。若均为不认为是恶意软件则为0，否则返回Unknown。
