@@ -18,3 +18,9 @@
 
 - 0x7B 是 '{'，因为 0x7B 后面没有结束符，所以上面的循环会遍历到`hacking_for_fun}`结尾处的0x00（字符串`\0`结束标记）。合起来这里的字符串实际上是`{hacking_for_fun}`。
 - 把字符串的i和r替换为1即可。
+
+# 内涵的软件 | 入门级
+
+IDA 打开，能找到main函数，不过是32位程序，用32位的ida才能反汇编。看了下面的逻辑都是定时和cmd交互。所以flag只可能是与v5相关了。把DBAPP换成flag提交成功。
+![](https://img-blog.csdnimg.cn/d3e131d6e6c340d9acbbb6a49a9cc290.png)
+
