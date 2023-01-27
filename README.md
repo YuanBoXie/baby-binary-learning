@@ -15,3 +15,8 @@ from《有趣的二进制：软件安全与逆向分析》[binarys for practice]
     - 进程内存编辑器：Process Hacker、CheatEngine
 
 - '/binary_books' 二进制相关书籍或阅读资料的pdf
+- '/ctf' CTF中的二进制题目
+
+# 书单
+
+- 《有趣的二进制：软件安全与逆向分析》 | 【难度：入门级】
