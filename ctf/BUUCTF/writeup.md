@@ -9,7 +9,7 @@
 - strncmp(Str1, Str2, v3): 比较 Str1 和 Str2 的前 v3 个字节(char)。
 - Str1 是 {hello_world}，下面的逻辑是把 Str1 的 o 替换为 0，即得到 flag。
 
-![](2023-01-27-19-31-35.png)
+![](https://img-blog.csdnimg.cn/2d8c58433aea4047a897e231ddca37a1.png)
 
 # reverse_2 | 入门级
 看起来不是 PE 格式的程序，那就只能静态分析了（毕竟本地没装linux）。IDA Pro 加载，能找到 main 函数，F5 反汇编。
